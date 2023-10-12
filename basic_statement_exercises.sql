@@ -20,7 +20,7 @@ SELECT name FROM albums WHERE artist = 'Pink Floyd';
 -- Find the name of all albums by Pink Floyd.
 -- ANSWER: The Dark Side of the Moon & The Wall
 
-SELECT release_date FROM albums WHERE name = "Sgt. Pepper's Lonely Hearts Club Band";
+SELECT release_date FROM albums WHERE name = 'Sgt. Pepper\'s Lonely Hearts Club Band';
 -- What is the year Sgt. Pepper's Lonely Hearts Club Band was released?
 -- ANSWER: 1967
 
