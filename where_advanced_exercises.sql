@@ -9,7 +9,7 @@ FROM employees
 WHERE first_name IN ('Irena', 'Vidya', 'Maya');
 -- Find all current or previous employees with first names 'Irena', 'Vidya', or 'Maya' using IN. 
 -- What is the employee number of the top three results?
--- ANSWER: 10200, 10397, 10610
+	-- ANSWER: 10200, 10397, 10610
 
 SELECT emp_no, first_name
 FROM employees 
@@ -18,9 +18,9 @@ WHERE first_name = 'Irena'
 	OR first_name = 'Maya';
 -- Find all current or previous employees with first names 'Irena', 'Vidya', or 'Maya', as in Q2, but use OR instead of IN. 
 -- What is the employee number of the top three results?
--- ANSWER: 10200, 10397, 10610
+	-- ANSWER: 10200, 10397, 10610
 -- Does it match the previous question?
--- ANSWER: Yes
+	-- ANSWER: Yes
 
 SELECT emp_no, first_name, gender
 FROM employees 
@@ -28,7 +28,7 @@ WHERE (first_name = 'Irena' OR first_name = 'Vidya' OR first_name = 'Maya')
 	AND gender = 'M';
 -- Find all current or previous employees with first names 'Irena', 'Vidya', or 'Maya', using OR, and who is male. 
 -- What is the employee number of the top three results?
--- ANSWER: 10200, 10397 10821
+	-- ANSWER: 10200, 10397 10821
 
 SELECT DISTINCT last_name 
 FROM employees 
@@ -49,8 +49,7 @@ WHERE last_name LIKE '%e'
 
 SELECT DISTINCT last_name 
 FROM employees 
-WHERE last_name LIKE 'e%' 
-	AND last_name LIKE '%e';
+WHERE last_name LIKE 'e%e';
 -- Find all unique last names that start and end with 'E'.
 
 SELECT emp_no, hire_date
