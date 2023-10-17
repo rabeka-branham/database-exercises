@@ -72,6 +72,7 @@ HAVING count(*) > 1
 ORDER BY count(*) DESC;
 -- From your previous query, are there any duplicate usernames? What is the highest number of times a username shows up? Bonus: How many duplicate usernames are there?
 -- ANSWER: yes | 6 
+
 SELECT count(duplicates.user_name)
 FROM
 	(SELECT
@@ -91,7 +92,6 @@ FROM
 -- Bonus: How many duplicate usernames are there?
 -- ANSWER: 13251
 
--- Bonus: More practice with aggregate functions:
 
 SELECT emp_no,
 	avg(salary)
@@ -102,6 +102,7 @@ GROUP BY emp_no;
 SELECT dept_no department,
 	count(*) employee_count
 FROM dept_emp
+WHERE to_date LIKE '9999%'
 GROUP BY dept_no;
 -- Using the dept_emp table, count how many current employees work in each department. The query result should show 9 rows, one for each department and the employee count.
 
