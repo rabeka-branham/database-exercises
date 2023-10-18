@@ -4,41 +4,31 @@ SELECT database();
 SHOW tables;
 -- Use the join_example_db. 
 
-SELECT *
-FROM users;
-
-SELECT * 
-FROM roles;
+SELECT * FROM users;
+SELECT * FROM roles;
 -- Select all the records from both the users and roles tables.
 
-SELECT 
-	u.name,
-	r.name
+SELECT *
 FROM users u
 	JOIN roles r
 	ON u.role_id = r.id;
     
-SELECT 
-	u.name,
-	r.name
-FROM users u
-	LEFT JOIN roles r
-	ON u.role_id = r.id;
+SELECT *
+FROM roles r
+	LEFT JOIN users u
+	ON r.id = u.role_id;
     
-SELECT 
-	u.name,
-	r.name
-FROM users u
-	RIGHT JOIN roles r
-	ON u.role_id = r.id;
+SELECT *
+FROM roles r
+	RIGHT JOIN users u
+	ON r.id = u.role_id;
 -- Use join, left join, and right join to combine results from the users and roles tables as we did in the lesson. Before you run each query, guess the expected number of results.
 
-SELECT 
-	r.name,
-    count(*)
-FROM users u
-	JOIN roles r
-	ON u.role_id = r.id
+SELECT r.name,
+	count(u.role_id)
+FROM roles r
+	JOIN users u
+	ON r.id = u.role_id
 GROUP BY r.name;
 -- Although not explicitly covered in the lesson, aggregate functions like count can be used with join queries. Use count and the appropriate join type to get a list of roles along with the number of users that have the role. Hint: You will also need to use group by in the query.
 
@@ -49,20 +39,20 @@ SHOW tables;
 -- 1. Use the employees database.
 
 SELECT 
-	dept.dept_name 'Department Name', 
-    concat(emp.first_name, ' ', emp.last_name) 'Department Manager'
-FROM departments dept
-	JOIN dept_manager man
-		ON dept.dept_no = man.dept_no
-	JOIN employees emp
-		ON emp.emp_no = man.emp_no
-WHERE man.to_date LIKE '9999%'
-ORDER BY dept_name;
+	d.dept_name 'Department Name', 
+    concat(e.first_name, ' ', e.last_name) 'Department Manager'
+FROM departments d
+	JOIN dept_manager dm
+		ON d.dept_no = dm.dept_no
+	JOIN employees e
+		ON e.emp_no = dm.emp_no
+WHERE dm.to_date LIKE '9999%'
+ORDER BY d.dept_name;
 -- 2. Using the example in the Associative Table Joins section as a guide, write a query that shows each department along with the name of the current manager for that department.
 
 SELECT 
 	dept.dept_name 'Department Name', 
-    concat(emp.first_name, ' ', emp.last_name) 'Department Manager'
+    concat(emp.first_name, ' ', emp.last_name) 'Manager Name'
 FROM departments dept
 	JOIN dept_manager man
 		ON dept.dept_no = man.dept_no
@@ -89,21 +79,20 @@ ORDER BY t.title;
 -- 4. Find the current titles of employees currently working in the Customer Service department.
 
 SELECT 
-    dept.dept_name 'Department Name',
-    CONCAT(emp.first_name, ' ', emp.last_name) 'Department Manager',
-    s.salary Salary
+    d.dept_name 'Department Name',
+    CONCAT(e.first_name, ' ', e.last_name) 'Name',
+    s.salary 'Salary'
 FROM
-    departments dept
-        JOIN
-    dept_manager man ON dept.dept_no = man.dept_no
-        JOIN
-    employees emp ON emp.emp_no = man.emp_no
-        JOIN
-    salaries s ON s.emp_no = emp.emp_no
-WHERE
-    man.to_date LIKE '9999%'
-        AND s.to_date LIKE '9999%'
-ORDER BY dept_name;
+    departments d
+        JOIN dept_manager dm 
+			ON d.dept_no = dm.dept_no
+            AND dm.to_date = 99990101
+        JOIN employees e 
+			ON e.emp_no = dm.emp_no
+        JOIN salaries s 
+			ON s.emp_no = e.emp_no
+            AND s.to_date = 99990101
+ORDER BY d.dept_name;
 -- 5. Find the current salary of all current managers.
 
 SELECT
@@ -115,7 +104,7 @@ FROM departments d
 		ON d.dept_no = de.dept_no
 WHERE de.to_date LIKE '9999%'
 GROUP BY d.dept_no
-ORDER BY dept_no;
+ORDER BY d.dept_no;
 -- 6. Find the number of current employees in each department.
 
 SELECT d.dept_name,
@@ -123,10 +112,10 @@ SELECT d.dept_name,
 FROM departments d
 	JOIN dept_emp de
 		ON d.dept_no = de.dept_no
+        AND de.to_date LIKE '9999%'
 	JOIN salaries s
 		ON s.emp_no = de.emp_no
-WHERE de.to_date LIKE '9999%'
-	AND s.to_date LIKE '9999%'
+        AND s.to_date LIKE '9999%'
 GROUP BY d.dept_name
 ORDER BY avg(s.salary) DESC
 LIMIT 1;
@@ -138,13 +127,13 @@ SELECT
 FROM departments d
 	JOIN dept_emp de
 		ON d.dept_no = de.dept_no
+        AND d.dept_name = 'Marketing'
 	JOIN employees e
 		ON e.emp_no = de.emp_no
+        AND de.to_date LIKE '9999%'
 	JOIN salaries s
 		ON e.emp_no = s.emp_no
-WHERE s.to_date LIKE '9999%'
-	AND de.to_date LIKE '9999%'
-    AND d.dept_name = 'Marketing'
+        AND s.to_date LIKE '9999%'
 ORDER BY s.salary DESC
 LIMIT 1;
 -- 8. Who is the highest paid employee in the Marketing department?
@@ -156,15 +145,14 @@ SELECT
     d.dept_name
 FROM
     departments d
-        JOIN
-    dept_manager dm ON d.dept_no = dm.dept_no
-        JOIN
-    employees e ON e.emp_no = dm.emp_no
-        JOIN
-    salaries s ON s.emp_no = e.emp_no
-WHERE
-    dm.to_date LIKE '9999%'
-        AND s.to_date LIKE '9999%'
+        JOIN dept_manager dm 
+			ON d.dept_no = dm.dept_no
+            AND dm.to_date LIKE '9999%'
+        JOIN employees e 
+			ON e.emp_no = dm.emp_no
+        JOIN salaries s 
+			ON s.emp_no = e.emp_no
+            AND s.to_date LIKE '9999%'     
 ORDER BY s.salary DESC
 LIMIT 1;
 -- 9. Which current department manager has the highest salary?
@@ -216,12 +204,13 @@ SELECT
 FROM departments d
 	JOIN dept_manager dm
 		ON dm.dept_no = d.dept_no
+        AND dm.to_date LIKE '9999%'
 	JOIN dept_emp de
 		ON de.dept_no = dm.dept_no
+        AND de.to_date LIKE '9999%'
 	JOIN employees e
 		ON e.emp_no = de.emp_no
 	JOIN employees m
 		ON m.emp_no = dm.emp_no
-WHERE de.to_date LIKE '9999%'
-	AND dm.to_date LIKE '9999%';
+;
 -- Bonus: Find the names of all current employees, their department name, and their current manager's name.
