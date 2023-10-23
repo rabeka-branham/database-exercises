@@ -63,40 +63,10 @@ SELECT * FROM sakila_payment;
 -- 2. Create a temporary table based on the payment table from the sakila database.
 		-- Write the SQL necessary to transform the amount column such that it is stored as an integer representing the number of cents of the payment. For example, 1.99 should become 199.
 
-
-
--- 3. Go back to the employees database. Find out how the current average pay in each department compares to the overall current pay for everyone at the company. For this comparison, you will calculate the z-score for each salary. In terms of salary, what is the best department right now to work for? The worst?
-    -- Returns the current z-scores for each salary
-    -- Notice that there are 2 separate scalar subqueries involved
-
-
-
-
-
-
-
--- Returns the current z-scores for each salary
--- Notice that there are 2 separate scalar subqueries involved
-    SELECT salary,
-        (salary - (SELECT AVG(salary) FROM salaries where to_date > now()))
-        /
-        (SELECT stddev(salary) FROM salaries where to_date > now()) AS zscore
-    FROM salaries
-    WHERE to_date > now();
-    
-
-
-CREATE TEMPORARY TABLE overall_avg_and_std AS
-SELECT
-	avg(salary)
-    , std(salary)
-FROM employees.salaries
-WHERE to_date > now();
-
 CREATE TEMPORARY TABLE dept_avgs AS
 SELECT
 	dept_name
-    , avg(salary)
+    , avg(salary) as dept_average
 FROM employees.departments d
 	JOIN employees.dept_emp de
 		ON d.dept_no = de.dept_no
@@ -106,11 +76,26 @@ FROM employees.departments d
         AND s.to_date > now()
 GROUP BY dept_name;
 
-SELECT * FROM overall_avg_and_std;
-SELECT * FROM dept_avgs;
+CREATE TEMPORARY TABLE overall_avg_and_std AS
+SELECT
+	avg(salary) AS average
+    , std(salary) standard_deviation
+FROM employees.salaries
+WHERE to_date > now();
 
 ALTER TABLE dept_avgs ADD overall_avg FLOAT(10,2);
 ALTER TABLE dept_avgs ADD overall_std FLOAT(10,2);
 ALTER TABLE dept_avgs ADD zscore FLOAT(10,2);
 
-UPDATE dept_avgs SET overall_avg = (avg(salary) FROM overall_avg_and_std);
+UPDATE dept_avgs SET overall_avg = (select average FROM overall_avg_and_std);
+UPDATE dept_avgs SET overall_std = (select standard_deviation FROM overall_avg_and_std);
+UPDATE dept_avgs SET zscore = ((dept_average - overall_avg) / overall_std);
+
+select * from dept_avgs
+ORDER BY zscore DESC;
+
+SELECT * FROM dept_avgs;
+SELECT * FROM overall_avg_and_std;
+-- 3. Go back to the employees database. Find out how the current average pay in each department compares to the overall current pay for everyone at the company. For this comparison, you will calculate the z-score for each salary. In terms of salary, what is the best department right now to work for? The worst?
+    -- Returns the current z-scores for each salary
+    -- Notice that there are 2 separate scalar subqueries involved
